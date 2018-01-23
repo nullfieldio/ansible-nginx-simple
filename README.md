@@ -18,7 +18,3 @@ Including an example of how to use your role (for instance, with variables passe
       - role: tobybro-nginx-simple
         nginx_conf: /home/application/nginx/nginx.conf
 
-License
--------
-
-BSD
