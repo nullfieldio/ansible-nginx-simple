@@ -1,0 +1,46 @@
+---
+- name: nginx | add nginx repo
+  template:
+    src: repo.j2
+    dest: /etc/yum.repos.d/nginx.repo
+    owner: root
+    group: root
+    mode: 0644
+
+- name: nginx | install nginx
+  yum:
+    name: nginx
+    state: latest
+
+- name: nginx | create symlink to nginx.conf
+  file: 
+    src: "{{ nginx_conf }}"
+    dest: /etc/nginx/nginx.conf 
+    state: link 
+    force: yes
+  notify: restart nginx
+
+- name: nginx | write /etc/snmp/nginx-stats  
+  template: 
+    src: nginx-stats.j2 
+    dest: /etc/snmp/nginx-stats 
+    mode: 0755
+
+- name: nginx | make sure snmp has nginx line
+  lineinfile: 
+    dest: /etc/snmp/snmpd.conf 
+    line: 'extend nginx /etc/snmp/nginx-stats' 
+    state: present 
+    insertafter: EOF
+    
+- name: nginx | service snmp started and enabled
+  service: 
+    name: snmpd 
+    state: started 
+    enabled: yes
+    
+- name: nginx | service nginx started and enabled
+  service: 
+    name: nginx 
+    state: started 
+    enabled: yes
